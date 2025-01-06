@@ -10,9 +10,9 @@ export default async function Index() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (user) {
-    redirect("/protected/dashboard")
-  }
+  // if (user) {
+  //   redirect("/protected/dashboard")
+  // }
 
   return (
     <div className="flex-1 flex flex-col gap-20 items-center">
