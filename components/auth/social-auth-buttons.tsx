@@ -1,11 +1,9 @@
-import { Button } from "@/components/ui/button";
-import { createClient } from "@/utils/supabase/server";
-import { Apple, Facebook } from "lucide-react";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
+import Image from "next/image";
 
-async function signInWithProvider(provider: 'google' | 'facebook' | 'apple') {
+async function signInWithProvider(provider: 'google' | 'facebook') {
   'use server'
   
   try {
@@ -26,7 +24,6 @@ async function signInWithProvider(provider: 'google' | 'facebook' | 'apple') {
       throw error;
     }
 
-    // data.url contains the URL to redirect the user to
     if (data?.url) {
       redirect(data.url);
     }
@@ -42,53 +39,40 @@ interface SocialAuthButtonsProps {
 
 export function SocialAuthButtons({ className }: SocialAuthButtonsProps) {
   return (
-    <div className={cn("flex flex-col gap-4 w-full", className)}>
-      <div className="relative flex justify-center text-xs uppercase">
-        <span className="bg-background px-2 text-muted-foreground">
-          Or continue with
-        </span>
-      </div>
+    <div className={cn("flex flex-col space-y-3", className)}>
+      <form action={signInWithProvider.bind(null, 'google')}>
+        <button
+          type="submit"
+          className="w-full h-10 px-6 flex items-center justify-center gap-3 rounded-lg border hover:border-slate-400 hover:shadow transition duration-300"
+        >
+          <Image 
+            width={20}
+            height={20}
+            src="https://www.svgrepo.com/show/475656/google-color.svg"
+            loading="lazy"
+            alt="google logo"
+            className="h-5 w-5"
+          />
+          <span>Google</span>
+        </button>
+      </form>
 
-      <div className="grid grid-cols-3 gap-4">
-        <form action={signInWithProvider.bind(null, 'google')}>
-          <Button
-            variant="outline"
-            className="w-full"
-            type="submit"
-          >
-            <Image
-              src="/google.svg"
-              width={16}
-              height={16}
-              alt="Google"
-              className="mr-2"
-            />
-            Google
-          </Button>
-        </form>
-
-        <form action={signInWithProvider.bind(null, 'facebook')}>
-          <Button
-            variant="outline"
-            className="w-full"
-            type="submit"
-          >
-            <Facebook className="mr-2 h-4 w-4" />
-            Facebook
-          </Button>
-        </form>
-
-        <form action={signInWithProvider.bind(null, 'apple')}>
-          <Button
-            variant="outline"
-            className="w-full"
-            type="submit"
-          >
-            <Apple className="mr-2 h-4 w-4" />
-            Apple
-          </Button>
-        </form>
-      </div>
+      <form action={signInWithProvider.bind(null, 'facebook')}>
+        <button
+          type="submit"
+          className="w-full h-10 px-6 flex items-center justify-center gap-3 rounded-lg border hover:border-slate-400 hover:shadow transition duration-300"
+        >
+          <Image 
+            width={20}
+            height={20}
+            src="https://www.svgrepo.com/show/475647/facebook-color.svg"
+            loading="lazy"
+            alt="facebook logo"
+            className="h-5 w-5"
+          />
+          <span>Facebook</span>
+        </button>
+      </form>
     </div>
   );
 }
