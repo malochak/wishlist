@@ -2,6 +2,7 @@ import { createClient } from "@/utils/supabase/server";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getWishlistsAction } from "./actions";
 
 export default async function WishlistsPage() {
   const supabase = await createClient();
@@ -13,8 +14,7 @@ export default async function WishlistsPage() {
     redirect("/sign-in");
   }
 
-  // TODO: Fetch user's wishlists from database
-  const wishlists = [];
+  const wishlists = await getWishlistsAction();
 
   return (
     <div className="container py-8">
@@ -37,7 +37,17 @@ export default async function WishlistsPage() {
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {/* Wishlist cards will go here */}
+          {wishlists.map((wishlist) => (
+            <div key={wishlist.id} className="p-6 border rounded-lg shadow-sm">
+              <h2 className="text-xl font-semibold mb-2">{wishlist.title}</h2>
+              {wishlist.description && (
+                <p className="text-muted-foreground mb-4">{wishlist.description}</p>
+              )}
+              <div className="text-sm text-muted-foreground">
+                {wishlist.wishlist_items?.length || 0} items
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
