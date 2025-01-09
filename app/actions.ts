@@ -19,24 +19,44 @@ export const signUpAction = async (formData: FormData) => {
     );
   }
 
-  const { error } = await supabase.auth.signUp({
+  const { data: { user }, error: signUpError } = await supabase.auth.signUp({
     email,
     password,
     options: {
       emailRedirectTo: `${origin}/auth/callback`,
+      data: {
+        username: email.split('@')[0],
+        full_name: email.split('@')[0],
+      }
     },
   });
 
-  if (error) {
-    console.error(error.code + " " + error.message);
-    return encodedRedirect("error", "/sign-up", error.message);
-  } else {
-    return encodedRedirect(
-      "success",
-      "/sign-up",
-      "Thanks for signing up! Please check your email for a verification link.",
-    );
+  if (signUpError) {
+    console.error(signUpError.code + " " + signUpError.message);
+    return encodedRedirect("error", "/sign-up", signUpError.message);
   }
+
+  if (user) {
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .upsert({
+        id: user.id,
+        username: email.split('@')[0],
+        full_name: email.split('@')[0],
+        updated_at: new Date().toISOString(),
+      });
+
+    if (profileError) {
+      console.error("Profile creation error:", profileError);
+      return encodedRedirect("error", "/sign-up", "Error creating user profile");
+    }
+  }
+
+  return encodedRedirect(
+    "success",
+    "/sign-up",
+    "Thanks for signing up! Please check your email for a verification link.",
+  );
 };
 
 export const signInAction = async (formData: FormData) => {
@@ -44,13 +64,39 @@ export const signInAction = async (formData: FormData) => {
   const password = formData.get("password") as string;
   const supabase = await createClient();
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data: { user }, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
   if (error) {
     return encodedRedirect("error", "/sign-in", error.message);
+  }
+
+  if (user) {
+    // Check if profile exists
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select()
+      .eq('id', user.id)
+      .single();
+
+    if (!profile && !profileError) {
+      // Create profile if it doesn't exist
+      const { error: createError } = await supabase
+        .from('profiles')
+        .upsert({
+          id: user.id,
+          username: email.split('@')[0],
+          full_name: email.split('@')[0],
+          updated_at: new Date().toISOString(),
+        });
+
+      if (createError) {
+        console.error("Profile creation error:", createError);
+        return encodedRedirect("error", "/sign-in", "Error creating user profile");
+      }
+    }
   }
 
   return redirect("/protected");
