@@ -47,7 +47,7 @@ A minimalist wishlist application that allows users to create, manage, and share
 - Visibility Options
 - Reservation Tracking Preferences
 
-## Minimal Viable Product (MVP) Requirements
+## Requirements
 
 ### 1. User Authentication
 - Third-party login support:
@@ -80,23 +80,158 @@ A minimalist wishlist application that allows users to create, manage, and share
 - Minimalist, clean UI
 - Neutral color scheme
 
-### 6. Technical Requirements
-- Secure hosting
-- HTTPS encryption
-- Robust error handling
+## Database Schema
 
-## Stretch Goals
-- Group gift contributions
-- Multiple wishlist support
-- Reservation notifications
+### Tables
+
+#### profiles
+- `id`: UUID (PK, references auth.users)
+- `username`: text (unique)
+- `full_name`: text
+- `avatar_url`: text
+- `updated_at`: timestamp
+
+#### wishlists
+- `id`: UUID (PK)
+- `user_id`: UUID (FK to profiles)
+- `title`: text
+- `description`: text (optional)
+- `is_public`: boolean (default true)
+- `created_at`: timestamp
+- `updated_at`: timestamp
+
+#### wishlist_items
+- `id`: UUID (PK)
+- `wishlist_id`: UUID (FK to wishlists)
+- `name`: text
+- `description`: text (optional)
+- `image_url`: text (optional)
+- `purchase_url`: text (optional)
+- `price`: decimal(10,2) (optional)
+- `priority`: smallint (default 1)
+- `created_at`: timestamp
+- `updated_at`: timestamp
+
+#### reservations
+- `id`: UUID (PK)
+- `item_id`: UUID (FK to wishlist_items)
+- `reserver_email`: text
+- `reserver_name`: text (optional)
+- `reserved_at`: timestamp
+- `status`: text (enum: 'reserved', 'purchased', 'cancelled')
+
+### Security Policies
+- Row Level Security (RLS) enabled on all tables
+- Public profiles viewable by everyone
+- Users can only manage their own profiles
+- Public wishlists viewable by everyone
+- Private wishlists only viewable by owners
+- Wishlist items inherit wishlist visibility
+- Reservations viewable only by wishlist owners
+
+## Implemented Features
+
+### Authentication
+- Email/Password authentication
+- OAuth providers (Google, Facebook)
+- Password reset functionality
+- User profile creation on signup
+
+### Wishlist Management
+- Create new wishlists
+  - Required title
+  - Optional description
+  - Public/private setting
+- View all user's wishlists
+- Delete wishlists
+
+### Item Management
+- Add items to wishlists
+  - Required name
+  - Optional description
+  - Optional purchase URL
+  - Optional price
+  - Optional image URL
+- View items in wishlist
+- Delete items from wishlist
+
+## API Actions
+
+### Authentication
+- `signUpAction`: Handle user registration
+- `signInAction`: Handle user login
+- `forgotPasswordAction`: Handle password reset requests
+- `resetPasswordAction`: Process password resets
+- `signOutAction`: Handle user logout
+
+### Wishlist Management
+- `createWishlistAction`: Create new wishlists
+- `getWishlistsAction`: Fetch user's wishlists
+- `addWishlistItemAction`: Add items to wishlist
+- `deleteWishlistAction`: Remove wishlists
+
+## Components
+
+### Forms
+- `WishlistForm`: Create/edit wishlists
+  - Title input
+  - Description textarea
+  - Submit/Cancel buttons
+  - Error handling
+  - Loading states
+
+- `AddItemForm`: Add/edit wishlist items
+  - Name input
+  - Description textarea
+  - Purchase URL input
+  - Price input
+  - Image URL input
+  - Submit/Cancel buttons
+  - Error handling
+  - Loading states
+
+## Technical Implementation
+
+### Server Actions
+All database operations are implemented as server actions for:
+- Better security
+- Improved performance
+- Type safety
+- Proper error handling
+- Cache invalidation
+
+### Database Access
+- Uses Supabase client
+- Server-side data fetching
+- Row Level Security enforcement
+- Proper error handling
+
+### UI Components
+- Built with shadcn/ui
+- Responsive design
+- Loading states
+- Error feedback
+- Form validation
 
 ## Technology Stack
 - Frontend: Next.js (React)
-- Authentication: OAuth providers
-- Database: TBD
-- Hosting: TBD
+- Authentication: Supabase Auth
+- Database: Supabase (PostgreSQL)
+- UI Components: shadcn/ui
+- Styling: Tailwind CSS
+
+## Next Steps
+1. Implement wishlist sharing functionality
+2. Add reservation system
+3. Create public wishlist view
+4. Add email notifications
+5. Implement item prioritization
+6. Add image upload functionality
 
 ## Future Considerations
 - Internationalization
 - Accessibility improvements
 - Advanced sharing options
+- Group gift contributions
+- Multiple wishlist support
+- Reservation notifications
