@@ -8,8 +8,6 @@ import { addWishlistItemAction } from "@/app/wishlists/actions";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const placeholderImage = "https://picsum.photos/600/400"
-
 export function AddItemForm({ wishlistId }: { wishlistId: string }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
@@ -98,7 +96,7 @@ export function AddItemForm({ wishlistId }: { wishlistId: string }) {
           id="imageUrl"
           name="imageUrl"
           type="url"
-          placeholder={placeholderImage}
+          placeholder="Enter image URL"
         />
       </div>
 

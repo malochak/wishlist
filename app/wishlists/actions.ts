@@ -60,12 +60,29 @@ export async function getWishlistsAction() {
 export async function addWishlistItemAction(formData: FormData) {
   const supabase = await createClient();
 
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    redirect("/sign-in");
+  }
+
   const wishlistId = formData.get("wishlistId") as string;
   const name = formData.get("name") as string;
   const description = formData.get("description") as string | null;
   const imageUrl = formData.get("imageUrl") as string | null;
   const purchaseUrl = formData.get("purchaseUrl") as string | null;
   const price = formData.get("price") ? Number(formData.get("price")) : null;
+
+  // Verify user owns the wishlist
+  const { data: wishlist, error: wishlistError } = await supabase
+    .from("wishlists")
+    .select()
+    .eq("id", wishlistId)
+    .eq("user_id", user.id)
+    .single();
+
+  if (wishlistError || !wishlist) {
+    throw new Error("Wishlist not found or access denied");
+  }
 
   const { error } = await supabase
     .from("wishlist_items")
@@ -83,7 +100,7 @@ export async function addWishlistItemAction(formData: FormData) {
     throw error;
   }
 
-  revalidatePath("/wishlists");
+  revalidatePath(`/wishlists/${wishlistId}`);
 }
 
 export async function deleteWishlistAction(formData: FormData) {
@@ -102,4 +119,16 @@ export async function deleteWishlistAction(formData: FormData) {
   }
 
   revalidatePath("/wishlists");
+}
+
+export async function toggleWishlistVisibility(formData: FormData) {
+  // Implementation here
+}
+
+export async function createReservation(formData: FormData) {
+  // Implementation here
+}
+
+export async function updateItemPriority(formData: FormData) {
+  // Implementation here
 } 
