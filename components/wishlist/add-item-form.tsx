@@ -19,13 +19,12 @@ export function AddItemForm({ wishlistId }: { wishlistId: string }) {
     setIsSubmitting(true);
     setError(null);
 
-    // Add wishlistId to formData
-    formData.append("wishlistId", wishlistId);
-
     try {
+      // Add wishlistId to formData
+      formData.append("wishlistId", wishlistId);
       await addWishlistItemAction(formData);
-      // Redirect back to wishlist page after successful addition
       router.push(`/wishlists/${wishlistId}`);
+      router.refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong");
       setIsSubmitting(false);
