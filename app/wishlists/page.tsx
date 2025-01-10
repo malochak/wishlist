@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getWishlistsAction } from "./actions";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 
 export default async function WishlistsPage() {
   const supabase = await createClient();
@@ -38,15 +39,22 @@ export default async function WishlistsPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {wishlists.map((wishlist) => (
-            <div key={wishlist.id} className="p-6 border rounded-lg shadow-sm">
-              <h2 className="text-xl font-semibold mb-2">{wishlist.title}</h2>
-              {wishlist.description && (
-                <p className="text-muted-foreground mb-4">{wishlist.description}</p>
-              )}
-              <div className="text-sm text-muted-foreground">
-                {wishlist.wishlist_items?.length || 0} items
-              </div>
-            </div>
+            <Link key={wishlist.id} href={`/wishlists/${wishlist.id}`}>
+              <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                <CardHeader>
+                  <CardTitle>{wishlist.title}</CardTitle>
+                  {wishlist.description && (
+                    <CardDescription>{wishlist.description}</CardDescription>
+                  )}
+                </CardHeader>
+                <CardContent>
+                  <div className="flex justify-between text-sm text-muted-foreground">
+                    <span>{wishlist.wishlist_items?.length || 0} items</span>
+                    <span>{wishlist.is_public ? "Public" : "Private"}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       )}
