@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { Share2, Plus, Settings } from "lucide-react";
+import { Share2, Plus, Settings, Pencil, Trash2 } from "lucide-react";
 import { ReservationForm } from "@/components/wishlist/reservation-form";
 import Image from "next/image";
+import { deleteWishlistItemAction } from "../actions";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -36,6 +37,8 @@ export default async function WishlistPage({
   if (error || !wishlist) {
     redirect("/wishlists");
   }
+
+  const isOwner = wishlist.user_id === user.id;
 
   return (
     <div className="container py-8">
@@ -119,7 +122,34 @@ export default async function WishlistPage({
                     </a>
                   </Button>
                 )}
-                <ReservationForm itemId={item.id} itemName={item.name} />
+                {isOwner ? (
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      asChild
+                    >
+                      <Link href={`/wishlists/${id}/items/${item.id}/edit`}>
+                        <span className="sr-only">Edit Item</span>
+                        <Pencil className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                    <form action={deleteWishlistItemAction}>
+                      <input type="hidden" name="itemId" value={item.id} />
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        type="submit"
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <span className="sr-only">Delete Item</span>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </form>
+                  </div>
+                ) : (
+                  <ReservationForm itemId={item.id} itemName={item.name} />
+                )}
               </CardFooter>
             </Card>
           ))}

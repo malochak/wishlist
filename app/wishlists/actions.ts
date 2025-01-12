@@ -193,4 +193,49 @@ export async function updateReservationStatusAction(formData: FormData) {
   }
 
   revalidatePath("/wishlists/[id]");
+}
+
+export async function deleteWishlistItemAction(formData: FormData) {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    redirect("/sign-in");
+  }
+
+  const itemId = formData.get("itemId") as string;
+
+  // Verify user owns the wishlist containing this item
+  const { data: item, error: itemError } = await supabase
+    .from("wishlist_items")
+    .select("wishlist_id")
+    .eq("id", itemId)
+    .single();
+
+  if (itemError || !item) {
+    throw new Error("Item not found");
+  }
+
+  const { data: wishlist, error: wishlistError } = await supabase
+    .from("wishlists")
+    .select()
+    .eq("id", item.wishlist_id)
+    .eq("user_id", user.id)
+    .single();
+
+  if (wishlistError || !wishlist) {
+    throw new Error("Not authorized to delete this item");
+  }
+
+  const { error } = await supabase
+    .from("wishlist_items")
+    .delete()
+    .eq("id", itemId);
+
+  if (error) {
+    console.error("Error deleting wishlist item:", error);
+    throw error;
+  }
+
+  revalidatePath(`/wishlists/${item.wishlist_id}`);
 } 
