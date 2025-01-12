@@ -238,4 +238,55 @@ export async function deleteWishlistItemAction(formData: FormData) {
   }
 
   revalidatePath(`/wishlists/${item.wishlist_id}`);
+}
+
+export async function updateWishlistItemAction(formData: FormData) {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    redirect("/sign-in");
+  }
+
+  const itemId = formData.get("itemId") as string;
+  const name = formData.get("name") as string;
+  const description = formData.get("description") as string | null;
+  const imageUrl = formData.get("imageUrl") as string | null;
+  const purchaseUrl = formData.get("purchaseUrl") as string | null;
+  const price = formData.get("price") ? Number(formData.get("price")) : null;
+
+  // Verify user owns the wishlist containing this item
+  const { data: item, error: itemError } = await supabase
+    .from("wishlist_items")
+    .select(`
+      wishlist_id,
+      wishlists!inner (
+        user_id
+      )
+    `)
+    .eq("id", itemId)
+    .single();
+
+  if (itemError || !item || item.wishlists.user_id !== user.id) {
+    throw new Error("Not authorized to edit this item");
+  }
+
+  const { error } = await supabase
+    .from("wishlist_items")
+    .update({
+      name,
+      description,
+      image_url: imageUrl,
+      purchase_url: purchaseUrl,
+      price,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", itemId);
+
+  if (error) {
+    console.error("Error updating wishlist item:", error);
+    throw error;
+  }
+
+  revalidatePath(`/wishlists/${item.wishlist_id}`);
 } 
