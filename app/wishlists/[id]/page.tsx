@@ -4,6 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Share2, Plus, Settings } from "lucide-react";
+import { ReservationForm } from "@/components/wishlist/reservation-form";
 
 export default async function WishlistPage({
   params: { id },
@@ -111,7 +112,7 @@ export default async function WishlistPage({
                     </a>
                   </Button>
                 )}
-                <Button>Reserve</Button>
+                <ReservationForm itemId={item.id} itemName={item.name} />
               </CardFooter>
             </Card>
           ))}

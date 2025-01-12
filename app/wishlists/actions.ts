@@ -131,4 +131,66 @@ export async function createReservation(formData: FormData) {
 
 export async function updateItemPriority(formData: FormData) {
   // Implementation here
+}
+
+export async function createReservationAction(formData: FormData) {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  const itemId = formData.get("itemId") as string;
+  const reserverName = formData.get("reserverName") as string;
+  const reserverEmail = formData.get("reserverEmail") as string;
+
+  // Check if item is already reserved
+  const { data: existingReservation } = await supabase
+    .from("reservations")
+    .select()
+    .eq("item_id", itemId)
+    .eq("status", "reserved")
+    .single();
+
+  if (existingReservation) {
+    throw new Error("This item has already been reserved");
+  }
+
+  const { error } = await supabase
+    .from("reservations")
+    .insert({
+      item_id: itemId,
+      reserver_name: reserverName,
+      reserver_email: reserverEmail,
+      status: "reserved",
+    });
+
+  if (error) {
+    console.error("Error creating reservation:", error);
+    throw error;
+  }
+
+  revalidatePath("/wishlists/[id]");
+}
+
+export async function updateReservationStatusAction(formData: FormData) {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    redirect("/sign-in");
+  }
+
+  const reservationId = formData.get("reservationId") as string;
+  const status = formData.get("status") as "reserved" | "purchased" | "cancelled";
+
+  const { error } = await supabase
+    .from("reservations")
+    .update({ status })
+    .eq("id", reservationId);
+
+  if (error) {
+    console.error("Error updating reservation:", error);
+    throw error;
+  }
+
+  revalidatePath("/wishlists/[id]");
 } 
