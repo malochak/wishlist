@@ -6,11 +6,14 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Share2, Plus, Settings } from "lucide-react";
 import { ReservationForm } from "@/components/wishlist/reservation-form";
 
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
+
 export default async function WishlistPage({
-  params: { id },
-}: {
-  params: { id: string };
-}) {
+  params,
+}: PageProps) {
+  const { id } = await params;
   const supabase = await createClient();
   const {
     data: { user },
