@@ -1,11 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    dangerouslyAllowSVG: true,
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'placehold.co',
+        hostname: 'www.svgrepo.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.googleusercontent.com', // For Google profile images
       },
     ],
   },

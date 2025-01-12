@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Share2, Plus, Settings } from "lucide-react";
 import { ReservationForm } from "@/components/wishlist/reservation-form";
+import Image from "next/image";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -82,12 +83,15 @@ export default async function WishlistPage({
           {wishlist.wishlist_items?.map((item) => (
             <Card key={item.id}>
               {item.image_url && (
-                <img
-                  src={item.image_url}
-                  alt={item.name}
-                  className="w-full h-48 object-cover rounded-t-lg"
-                  loading="lazy"
-                />
+                <div className="relative w-full h-48">
+                  <Image
+                    src={item.image_url}
+                    alt={item.name}
+                    fill
+                    unoptimized
+                    className="object-cover rounded-t-lg"
+                  />
+                </div>
               )}
               <CardHeader>
                 <CardTitle>{item.name}</CardTitle>
