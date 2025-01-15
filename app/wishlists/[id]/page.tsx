@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { Share2, Plus, Settings, Pencil, Trash2 } from "lucide-react";
+import { Share2, Plus, Settings, Pencil, Trash2, ImageIcon } from "lucide-react";
 import { ReservationForm } from "@/components/wishlist/reservation-form";
 import Image from "next/image";
 import { deleteWishlistItemAction } from "../actions";
@@ -85,15 +85,20 @@ export default async function WishlistPage({
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {wishlist.wishlist_items?.map((item) => (
             <Card key={item.id}>
-              {item.image_url && (
-                <div className="relative w-full h-48">
+              {item.image_url ? (
+                <div className="relative w-full h-64 overflow-hidden">
                   <Image
                     src={item.image_url}
                     alt={item.name}
                     fill
                     unoptimized
-                    className="object-cover rounded-t-lg"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="object-fit rounded-t-lg hover:scale-105 transition-transform duration-200"
                   />
+                </div>
+              ) : (
+                <div className="w-full h-48 bg-muted flex items-center justify-center rounded-t-lg">
+                  <ImageIcon className="h-12 w-12 text-muted-foreground" />
                 </div>
               )}
               <CardHeader>
