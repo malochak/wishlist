@@ -86,18 +86,18 @@ export default async function WishlistPage({
           {wishlist.wishlist_items?.map((item) => (
             <Card key={item.id}>
               {item.image_url ? (
-                <div className="relative w-full h-64 overflow-hidden">
+                <div className="relative w-full aspect-square overflow-hidden">
                   <Image
                     src={item.image_url}
                     alt={item.name}
                     fill
                     unoptimized
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className="object-fit rounded-t-lg hover:scale-105 transition-transform duration-200"
+                    className="object-cover rounded-t-lg hover:scale-105 transition-transform duration-200"
                   />
                 </div>
               ) : (
-                <div className="w-full h-48 bg-muted flex items-center justify-center rounded-t-lg">
+                <div className="w-full aspect-square bg-muted flex items-center justify-center rounded-t-lg">
                   <ImageIcon className="h-12 w-12 text-muted-foreground" />
                 </div>
               )}
