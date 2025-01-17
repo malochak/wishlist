@@ -101,13 +101,13 @@ export default async function WishlistPage({
                   <ImageIcon className="h-12 w-12 text-muted-foreground" />
                 </div>
               )}
-              <CardHeader>
+              <CardHeader className="min-h-[80px]">
                 <CardTitle>{item.name}</CardTitle>
                 {item.description && (
                   <CardDescription>{item.description}</CardDescription>
                 )}
               </CardHeader>
-              <CardContent>
+              <CardContent className="min-h-[60px]">
                 {item.price && (
                   <div className="text-lg font-semibold">
                     ${item.price.toFixed(2)}
