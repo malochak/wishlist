@@ -46,12 +46,6 @@ export default function RootLayout({
                   >
                     Wishlist
                   </Link>
-                  <Link
-                    href={"/protected/dashboard"}
-                    className="text-sm text-muted-foreground hover:text-foreground"
-                  >
-                    Dashboard
-                  </Link>
                 </div>
                 <div className="flex items-center gap-4">
                   <ThemeSwitcher />

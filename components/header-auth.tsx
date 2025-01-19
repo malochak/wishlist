@@ -12,17 +12,6 @@ export default async function AuthButton() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!hasEnvVars) {
-    return (
-      <Badge
-        variant={"default"}
-        className="font-normal pointer-events-none"
-      >
-        Please update .env.local file with anon key and url
-      </Badge>
-    );
-  }
-
   return user ? (
     <div className="flex items-center gap-4">
       Hey, {user.email}!
