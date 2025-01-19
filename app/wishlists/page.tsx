@@ -12,7 +12,7 @@ export default async function WishlistsPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/sign-in");
+    redirect("/");
   }
 
   const wishlists = await getWishlistsAction();

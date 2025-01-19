@@ -9,7 +9,7 @@ export async function createWishlistAction(formData: FormData) {
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    redirect("/sign-in");
+    redirect("/");
   }
 
   const title = formData.get("title") as string;
@@ -37,7 +37,7 @@ export async function getWishlistsAction() {
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    redirect("/sign-in");
+    redirect("/");
   }
 
   const { data: wishlists, error } = await supabase
@@ -62,7 +62,7 @@ export async function addWishlistItemAction(formData: FormData) {
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    redirect("/sign-in");
+    redirect("/");
   }
 
   const wishlistId = formData.get("wishlistId") as string;
@@ -176,7 +176,7 @@ export async function updateReservationStatusAction(formData: FormData) {
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    redirect("/sign-in");
+    redirect("/");
   }
 
   const reservationId = formData.get("reservationId") as string;
@@ -200,7 +200,7 @@ export async function deleteWishlistItemAction(formData: FormData) {
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    redirect("/sign-in");
+    redirect("/");
   }
 
   const itemId = formData.get("itemId") as string;
@@ -245,7 +245,7 @@ export async function updateWishlistItemAction(formData: FormData) {
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    redirect("/sign-in");
+    redirect("/");
   }
 
   const itemId = formData.get("itemId") as string;
