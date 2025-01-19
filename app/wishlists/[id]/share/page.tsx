@@ -1,13 +1,18 @@
-// Public wishlist view
-export default async function PublicWishlistPage({
-  params: { id },
-}: {
-  params: { id: string };
-}) {
-  // Implementation here
+// Server Component
+import { SharePageClient } from './client';
+import { headers } from 'next/headers';
 
-  // centered plaveholder to be implemented
-  return <div className="flex justify-center mt-20 h-screen">
-    <p className="text-2xl font-bold">To be implemented</p>
-  </div>;
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default async function SharePage({ params }: PageProps) {
+  const { id } = await params;
+  
+  const headersList = await headers();
+  const host = headersList.get('host');
+  const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
+  const publicUrl = `${protocol}://${host}/wishlists/public/${id}`;
+
+  return <SharePageClient id={id} publicUrl={publicUrl} />;
 } 

@@ -29,7 +29,10 @@ export default async function WishlistPage({
     .from("wishlists")
     .select(`
       *,
-      wishlist_items (*)
+      wishlist_items (
+        *,
+        reservations (*)
+      )
     `)
     .eq("id", id)
     .single();
@@ -154,6 +157,11 @@ export default async function WishlistPage({
                   </div>
                 ) : (
                   <ReservationForm itemId={item.id} itemName={item.name} />
+                )}
+                {isOwner && item.reservations?.[0] && (
+                  <div className="text-sm text-muted-foreground mt-2">
+                    Reserved by: {item.reservations[0].reserver_name}
+                  </div>
                 )}
               </CardFooter>
             </Card>

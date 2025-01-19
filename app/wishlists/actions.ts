@@ -289,4 +289,67 @@ export async function updateWishlistItemAction(formData: FormData) {
   }
 
   revalidatePath(`/wishlists/${item.wishlist_id}`);
+}
+
+export async function reserveItemAction({
+  itemId,
+  email,
+  name,
+}: {
+  itemId: string;
+  email: string;
+  name: string;
+}) {
+  const supabase = await createClient();
+  
+  // Check if user is authenticated
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  // First check if item is already reserved
+  const { data: existingReservation } = await supabase
+    .from('reservations')
+    .select('id')
+    .eq('item_id', itemId)
+    .single();
+
+  if (existingReservation) {
+    throw new Error('Item is already reserved');
+  }
+
+  // Create the reservation
+  const { error } = await supabase
+    .from('reservations')
+    .insert({
+      item_id: itemId,
+      reserver_email: email,
+      reserver_name: name,
+      user_id: user?.id, // Will be null for non-authenticated users
+      status: 'reserved',
+    });
+
+  if (error) {
+    console.error('Reservation error:', error);
+    throw new Error('Failed to reserve item');
+  }
+
+  // Send confirmation email (you'll need to implement this)
+  await sendReservationEmail({
+    email,
+    name,
+    itemId,
+  });
+}
+
+async function sendReservationEmail({
+  email,
+  name,
+  itemId,
+}: {
+  email: string;
+  name: string;
+  itemId: string;
+}) {
+  // Implement email sending logic here
+  // You could use services like SendGrid, Amazon SES, etc.
+  console.log('TODO: Implement email sending');
 } 
