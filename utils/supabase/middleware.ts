@@ -1,10 +1,25 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
+// Define public routes that don't require authentication
+const publicRoutes = [
+  '/sign-in',
+  '/sign-up',
+  '/public',
+];
+
 export const updateSession = async (request: NextRequest) => {
-  // This `try/catch` block is only here for the interactive tutorial.
-  // Feel free to remove once you have Supabase connected.
   try {
+    // Check if the current path is a public route
+    const isPublicRoute = publicRoutes.some(route => {
+      // Exact match for root path
+      if (request.nextUrl.pathname === '/') {
+        return true;
+      }
+      // For other routes, check if it starts with the route and is followed by / or end of string
+      return request.nextUrl.pathname.match(new RegExp(`^${route}(?:/|$)`));
+    });
+
     // Create an unmodified response
     let response = NextResponse.next({
       request: {
@@ -39,17 +54,23 @@ export const updateSession = async (request: NextRequest) => {
     // https://supabase.com/docs/guides/auth/server-side/nextjs
     const user = await supabase.auth.getUser();
 
-    // protected routes
-    if (request.nextUrl.pathname.startsWith("/protected") && user.error) {
-      return NextResponse.redirect(new URL("/sign-in", request.url));
+    // Allow access to public routes regardless of auth status
+    console.log("user", user);
+    console.log("isPublicRoute", isPublicRoute);
+    if (isPublicRoute) {
+      return response;
     }
 
+    // Protect non-public routes
+    console.log("user.error", user.error);
+    if (user.error) {
+      console.log("redirecting to landing page");
+      return NextResponse.redirect(new URL('/', request.url));
+    }
 
     return response;
   } catch (e) {
     // If you are here, a Supabase client could not be created!
-    // This is likely because you have not set up environment variables.
-    // Check out http://localhost:3000 for Next Steps.
     return NextResponse.next({
       request: {
         headers: request.headers,
