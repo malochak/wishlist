@@ -22,8 +22,13 @@ export default async function AuthButton() {
       </form>
     </div>
   ) : (
-    <Button asChild variant="default">
-      <Link href="/wishlists/new">Create Wishlist</Link>
-    </Button>
+    <div className="flex items-center gap-2">
+      <Button asChild variant="default">
+        <Link href="/wishlists/new">Create Wishlist</Link>
+      </Button>
+      <Button asChild variant="ghost" size="sm">
+        <Link href="/sign-in">Sign In</Link>
+      </Button>
+    </div>
   );
 }
