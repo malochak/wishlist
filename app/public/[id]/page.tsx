@@ -5,6 +5,30 @@ import { ImageIcon } from "lucide-react";
 import { ReservationForm } from "@/components/wishlist/reservation-form";
 import Image from "next/image";
 
+interface WishlistItem {
+  id: string;
+  name: string;
+  description?: string;
+  image_url?: string;
+  purchase_url?: string;
+  price?: number;
+  reservations?: Reservation[];
+}
+
+interface Reservation {
+  id: string;
+  status: string;
+  created_at: string;
+}
+
+interface Wishlist {
+  id: string;
+  title: string;
+  description?: string;
+  is_public: boolean;
+  wishlist_items?: WishlistItem[];
+}
+
 interface PageProps {
   params: Promise<{ id: string }>;
 }
@@ -15,24 +39,14 @@ export default async function PublicWishlistPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const { data: wishlist, error } = await supabase
+  // Get wishlist
+  const { data: wishlist, error: wishlistError } = await supabase
     .from("wishlists")
-    .select(`
-      *,
-      wishlist_items (
-        *,
-        reservations (
-          id,
-          status,
-          created_at
-        )
-      )
-    `)
+    .select('*')
     .eq("id", id)
-    .eq("is_public", true)
     .single();
 
-  if (error || !wishlist) {
+  if (wishlistError || !wishlist) {
     return (
       <div className="container py-8">
         <h1 className="text-2xl font-bold">Wishlist not found</h1>
@@ -43,16 +57,55 @@ export default async function PublicWishlistPage({
     );
   }
 
+  // Get wishlist items
+  const { data: wishlistItems, error: itemsError } = await supabase
+    .from("wishlist_items")
+    .select('*')
+    .eq("wishlist_id", id);
+
+  if (itemsError) {
+    return (
+      <div className="container py-8">
+        <h1 className="text-2xl font-bold">Error loading wishlist items</h1>
+        <p className="text-muted-foreground mt-2">
+          Please try again later.
+        </p>
+      </div>
+    );
+  }
+
+  // Get reservations for these items if there are any items
+  let reservations = [];
+  if (wishlistItems && wishlistItems.length > 0) {
+    const { data: reservationsData, error: reservationsError } = await supabase
+      .from("reservations")
+      .select('*')
+      .in('item_id', wishlistItems.map(item => item.id));
+    
+    if (!reservationsError) {
+      reservations = reservationsData || [];
+    }
+  }
+
+  // Combine the data
+  const fullWishlist = {
+    ...wishlist,
+    wishlist_items: wishlistItems?.map(item => ({
+      ...item,
+      reservations: reservations.filter(r => r.item_id === item.id)
+    }))
+  };
+
   return (
     <div className="container py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">{wishlist.title}</h1>
-        {wishlist.description && (
-          <p className="text-muted-foreground mt-2">{wishlist.description}</p>
+        <h1 className="text-3xl font-bold">{fullWishlist.title}</h1>
+        {fullWishlist.description && (
+          <p className="text-muted-foreground mt-2">{fullWishlist.description}</p>
         )}
       </div>
 
-      {wishlist.wishlist_items?.length === 0 ? (
+      {fullWishlist.wishlist_items?.length === 0 ? (
         <div className="text-center py-12">
           <h2 className="text-xl font-semibold mb-2">No items in this wishlist</h2>
           <p className="text-muted-foreground">
@@ -61,8 +114,8 @@ export default async function PublicWishlistPage({
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {wishlist.wishlist_items?.map((item) => (
-            <Card key={item.id}>
+          {fullWishlist.wishlist_items?.map((item) => (
+            <Card key={item.id} className="flex flex-col">
               {item.image_url ? (
                 <div className="relative w-full aspect-square overflow-hidden">
                   <Image
@@ -79,43 +132,50 @@ export default async function PublicWishlistPage({
                   <ImageIcon className="h-12 w-12 text-muted-foreground" />
                 </div>
               )}
-              <CardHeader className="min-h-[80px]">
-                <CardTitle>{item.name}</CardTitle>
-                {item.description && (
-                  <CardDescription>{item.description}</CardDescription>
-                )}
-              </CardHeader>
-              <CardContent className="min-h-[60px]">
-                {item.price && (
-                  <div className="text-lg font-semibold">
-                    ${item.price.toFixed(2)}
-                  </div>
-                )}
-              </CardContent>
-              <CardFooter className="flex justify-between">
-                {item.purchase_url && (
-                  <Button variant="outline" asChild>
-                    <a 
-                      href={item.purchase_url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2"
-                    >
-                      View Item
-                    </a>
-                  </Button>
-                )}
-                {!item.reservations?.[0] ? (
-                  <ReservationForm itemId={item.id} itemName={item.name} />
-                ) : (
+              <div className="flex flex-col flex-grow">
+                <CardHeader>
+                  <CardTitle>{item.name}</CardTitle>
+                  {item.description && (
+                    <CardDescription>{item.description}</CardDescription>
+                  )}
+                </CardHeader>
+                <CardContent>
+                  {item.price && (
+                    <div className="text-lg font-semibold">
+                      ${item.price.toFixed(2)}
+                    </div>
+                  )}
+                </CardContent>
+                <CardFooter className="mt-auto flex justify-between items-center gap-2">
                   <div className="flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-full bg-green-500" />
-                    <span className="text-sm text-muted-foreground">
-                      Reserved {new Date(item.reservations[0].created_at).toLocaleDateString()}
-                    </span>
+                    {item.purchase_url && (
+                      <Button variant="outline" asChild>
+                        <a 
+                          href={item.purchase_url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2"
+                        >
+                          View Item
+                        </a>
+                      </Button>
+                    )}
                   </div>
-                )}
-              </CardFooter>
+                  
+                  <div className="flex items-center">
+                    {!item.reservations?.[0] ? (
+                      <ReservationForm itemId={item.id} itemName={item.name} />
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <div className="h-2 w-2 rounded-full bg-green-500" />
+                        <span className="text-sm text-muted-foreground">
+                          Reserved {new Date(item.reservations[0].created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </CardFooter>
+              </div>
             </Card>
           ))}
         </div>
