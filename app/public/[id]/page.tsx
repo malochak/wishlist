@@ -29,6 +29,7 @@ export default async function PublicWishlistPage({
       )
     `)
     .eq("id", id)
+    .eq("is_public", true)
     .single();
 
   if (error || !wishlist) {

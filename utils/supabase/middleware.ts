@@ -6,6 +6,7 @@ const publicRoutes = [
   '/sign-in',
   '/sign-up',
   '/public',
+  '/auth/callback'
 ];
 
 export const updateSession = async (request: NextRequest) => {
@@ -65,7 +66,7 @@ export const updateSession = async (request: NextRequest) => {
     console.log("user.error", user.error);
     if (user.error) {
       console.log("redirecting to landing page");
-      return NextResponse.redirect(new URL('/', request.url));
+      return NextResponse.redirect(new URL('/sign-in', request.url));
     }
 
     return response;

@@ -12,7 +12,7 @@ export default async function SharePage({ params }: PageProps) {
   const headersList = await headers();
   const host = headersList.get('host');
   const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
-  const publicUrl = `${protocol}://${host}/wishlists/public/${id}`;
+  const publicUrl = `${protocol}://${host}/public/${id}`;
 
   return <SharePageClient id={id} publicUrl={publicUrl} />;
 } 
