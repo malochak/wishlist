@@ -56,8 +56,6 @@ export const updateSession = async (request: NextRequest) => {
     const user = await supabase.auth.getUser();
 
     // Allow access to public routes regardless of auth status
-    console.log("user", user);
-    console.log("isPublicRoute", isPublicRoute);
     if (isPublicRoute) {
       return response;
     }
@@ -65,7 +63,6 @@ export const updateSession = async (request: NextRequest) => {
     // Protect non-public routes
     console.log("user.error", user.error);
     if (user.error) {
-      console.log("redirecting to landing page");
       return NextResponse.redirect(new URL('/sign-in', request.url));
     }
 
