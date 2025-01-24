@@ -1,33 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { ImageIcon } from "lucide-react";
-import { ReservationForm } from "@/components/wishlist/reservation-form";
-import Image from "next/image";
-
-interface WishlistItem {
-  id: string;
-  name: string;
-  description?: string;
-  image_url?: string;
-  purchase_url?: string;
-  price?: number;
-  reservations?: Reservation[];
-}
-
-interface Reservation {
-  id: string;
-  status: string;
-  created_at: string;
-}
-
-interface Wishlist {
-  id: string;
-  title: string;
-  description?: string;
-  is_public: boolean;
-  wishlist_items?: WishlistItem[];
-}
+import { WishlistItemCard } from "@/components/wishlist/wishlist-item-card";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -115,68 +87,12 @@ export default async function PublicWishlistPage({
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {fullWishlist.wishlist_items?.map((item) => (
-            <Card key={item.id} className="flex flex-col">
-              {item.image_url ? (
-                <div className="relative w-full aspect-square overflow-hidden">
-                  <Image
-                    src={item.image_url}
-                    alt={item.name}
-                    fill
-                    unoptimized
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className="object-cover rounded-t-lg hover:scale-105 transition-transform duration-200"
-                  />
-                </div>
-              ) : (
-                <div className="w-full aspect-square bg-muted flex items-center justify-center rounded-t-lg">
-                  <ImageIcon className="h-12 w-12 text-muted-foreground" />
-                </div>
-              )}
-              <div className="flex flex-col flex-grow">
-                <CardHeader>
-                  <CardTitle>{item.name}</CardTitle>
-                  {item.description && (
-                    <CardDescription>{item.description}</CardDescription>
-                  )}
-                </CardHeader>
-                <CardContent>
-                  {item.price && (
-                    <div className="text-lg font-semibold">
-                      ${item.price.toFixed(2)}
-                    </div>
-                  )}
-                </CardContent>
-                <CardFooter className="mt-auto flex justify-between items-center gap-2">
-                  <div className="flex items-center gap-2">
-                    {item.purchase_url && (
-                      <Button variant="outline" asChild>
-                        <a 
-                          href={item.purchase_url} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2"
-                        >
-                          View Item
-                        </a>
-                      </Button>
-                    )}
-                  </div>
-                  
-                  <div className="flex items-center">
-                    {!item.reservations?.[0] ? (
-                      <ReservationForm itemId={item.id} itemName={item.name} />
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <div className="h-2 w-2 rounded-full bg-green-500" />
-                        <span className="text-sm text-muted-foreground">
-                          Reserved {new Date(item.reservations[0].created_at).toLocaleDateString()}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </CardFooter>
-              </div>
-            </Card>
+            <WishlistItemCard
+              key={item.id}
+              item={item}
+              isOwner={false}
+              wishlistId={id}
+            />
           ))}
         </div>
       )}

@@ -7,6 +7,7 @@ import { Share2, Plus, Settings, Pencil, Trash2, ImageIcon } from "lucide-react"
 import { ReservationForm } from "@/components/wishlist/reservation-form";
 import Image from "next/image";
 import { deleteWishlistItemAction } from "../actions";
+import { WishlistItemCard } from "@/components/wishlist/wishlist-item-card";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -87,84 +88,12 @@ export default async function WishlistPage({
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {wishlist.wishlist_items?.map((item) => (
-            <Card key={item.id}>
-              {item.image_url ? (
-                <div className="relative w-full aspect-square overflow-hidden">
-                  <Image
-                    src={item.image_url}
-                    alt={item.name}
-                    fill
-                    unoptimized
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className="object-cover rounded-t-lg hover:scale-105 transition-transform duration-200"
-                  />
-                </div>
-              ) : (
-                <div className="w-full aspect-square bg-muted flex items-center justify-center rounded-t-lg">
-                  <ImageIcon className="h-12 w-12 text-muted-foreground" />
-                </div>
-              )}
-              <CardHeader className="min-h-[80px]">
-                <CardTitle>{item.name}</CardTitle>
-                {item.description && (
-                  <CardDescription>{item.description}</CardDescription>
-                )}
-              </CardHeader>
-              <CardContent className="min-h-[60px]">
-                {item.price && (
-                  <div className="text-lg font-semibold">
-                    ${item.price.toFixed(2)}
-                  </div>
-                )}
-              </CardContent>
-              <CardFooter className="flex justify-between">
-                {item.purchase_url && (
-                  <Button variant="outline" asChild>
-                    <a 
-                      href={item.purchase_url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2"
-                    >
-                      View Item
-                    </a>
-                  </Button>
-                )}
-                {isOwner ? (
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      asChild
-                    >
-                      <Link href={`/wishlists/${id}/items/${item.id}/edit`}>
-                        <span className="sr-only">Edit Item</span>
-                        <Pencil className="h-4 w-4" />
-                      </Link>
-                    </Button>
-                    <form action={deleteWishlistItemAction}>
-                      <input type="hidden" name="itemId" value={item.id} />
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        type="submit"
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <span className="sr-only">Delete Item</span>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </form>
-                  </div>
-                ) : (
-                  <ReservationForm itemId={item.id} itemName={item.name} />
-                )}
-                {isOwner && item.reservations?.[0] && (
-                  <div className="text-sm text-muted-foreground mt-2">
-                    Reserved by: {item.reservations[0].reserver_name}
-                  </div>
-                )}
-              </CardFooter>
-            </Card>
+            <WishlistItemCard
+              key={item.id}
+              item={item}
+              isOwner={isOwner}
+              wishlistId={id}
+            />
           ))}
         </div>
       )}
