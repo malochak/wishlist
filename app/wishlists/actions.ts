@@ -352,4 +352,40 @@ async function sendReservationEmail({
   // Implement email sending logic here
   // You could use services like SendGrid, Amazon SES, etc.
   console.log('TODO: Implement email sending');
+}
+
+export async function toggleWishlistVisibilityAction(formData: FormData) {
+  const supabase = await createClient();
+  
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    redirect("/");
+  }
+
+  const wishlistId = formData.get("wishlistId") as string;
+  const isPublic = formData.get("isPublic") === "true";
+
+  // Verify user owns the wishlist
+  const { data: wishlist, error: wishlistError } = await supabase
+    .from("wishlists")
+    .select()
+    .eq("id", wishlistId)
+    .eq("user_id", user.id)
+    .single();
+
+  if (wishlistError || !wishlist) {
+    throw new Error("Not authorized to update this wishlist");
+  }
+
+  const { error } = await supabase
+    .from("wishlists")
+    .update({ is_public: isPublic })
+    .eq("id", wishlistId);
+
+  if (error) {
+    console.error("Error updating wishlist visibility:", error);
+    throw error;
+  }
+
+  revalidatePath(`/wishlists/${wishlistId}/share`);
 } 
