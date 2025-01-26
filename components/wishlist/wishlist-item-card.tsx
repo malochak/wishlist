@@ -7,6 +7,7 @@ import { ReservationForm } from "@/components/wishlist/reservation-form";
 import Image from "next/image";
 import Link from "next/link";
 import { deleteWishlistItemAction } from "@/app/wishlists/actions";
+import { Badge } from "@/components/ui/badge";
 
 interface WishlistItem {
   id: string;
@@ -30,8 +31,16 @@ interface WishlistItemCardProps {
 }
 
 export function WishlistItemCard({ item, isOwner, wishlistId }: WishlistItemCardProps) {
+  const isReserved = !!item.reservations?.[0];
+
   return (
-    <Card className="flex flex-col">
+    <Card className={`flex flex-col relative ${isReserved ? 'opacity-60' : ''}`}>
+      {isReserved && (
+        <Badge variant="secondary" className="absolute right-2 top-2 z-10">
+          Reserved
+        </Badge>
+      )}
+      
       {/* Image Section */}
       {item.image_url ? (
         <div className="relative w-full aspect-square overflow-hidden">
