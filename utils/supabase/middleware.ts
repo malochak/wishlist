@@ -61,7 +61,6 @@ export const updateSession = async (request: NextRequest) => {
     }
 
     // Protect non-public routes
-    console.log("user.error", user.error);
     if (user.error) {
       return NextResponse.redirect(new URL('/sign-in', request.url));
     }
