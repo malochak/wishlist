@@ -2,11 +2,7 @@ import { createClient } from "@/utils/supabase/server";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Share2, Plus, Settings, Pencil, Trash2, ImageIcon } from "lucide-react";
-import { ReservationForm } from "@/components/wishlist/reservation-form";
-import Image from "next/image";
-import { deleteWishlistItemAction } from "../actions";
 import { WishlistItemCard } from "@/components/wishlist/wishlist-item-card";
 
 interface PageProps {
@@ -43,6 +39,7 @@ export default async function WishlistPage({
   }
 
   const isOwner = wishlist.user_id === user.id;
+  console.log("isowner", isOwner);
 
   return (
     <div className="container py-8">
