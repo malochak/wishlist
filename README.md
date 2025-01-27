@@ -55,18 +55,11 @@
 
 For detailed product requirements and wireframes, see `PRODUCT_SPEC.md`
 
-## Contributing
-
-Please read `CONTRIBUTING.md` for details on our code of conduct and the process for submitting pull requests.
-
-## License
-
-This project is licensed under the MIT License - see the `LICENSE` file for details.
 
 ## Roadmap
 
-- [ ] Implement OAuth login
-- [ ] Create wishlist management features
-- [ ] Develop public wishlist sharing
+- [X] Implement OAuth login
+- [X] Create wishlist management features
+- [X] Develop public wishlist sharing
 - [ ] Add reservation system
 - [ ] Implement settings and preferences
