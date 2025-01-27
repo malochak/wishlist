@@ -19,7 +19,7 @@ interface WishlistItem {
   reservations?: Array<{
     id: string;
     status: string;
-    created_at: string;
+    reserved_at: string;
     reserver_name?: string;
   }>;
 }
@@ -126,7 +126,7 @@ export function WishlistItemCard({ item, isOwner, wishlistId }: WishlistItemCard
                 <div className="flex items-center gap-2">
                   <div className="h-2 w-2 rounded-full bg-green-500" />
                   <span className="text-sm text-muted-foreground">
-                    Reserved {new Date(item.reservations[0].created_at).toLocaleDateString()}
+                    Reserved {new Date(item.reservations[0].reserved_at).toLocaleDateString()}
                   </span>
                 </div>
               )
@@ -137,6 +137,7 @@ export function WishlistItemCard({ item, isOwner, wishlistId }: WishlistItemCard
         {/* Show reservation info to owner */}
         {isOwner && item.reservations?.[0] && (
           <div className="px-6 pb-4 text-sm text-muted-foreground">
+            <h1>hello</h1>
             Reserved by: {item.reservations[0].reserver_name}
           </div>
         )}
