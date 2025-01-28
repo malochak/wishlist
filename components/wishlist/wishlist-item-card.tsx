@@ -16,12 +16,12 @@ interface WishlistItem {
   image_url?: string;
   purchase_url?: string;
   price?: number;
-  reservations?: Array<{
+  reservations: {
     id: string;
     status: string;
     reserved_at: string;
     reserver_name?: string;
-  }>;
+  };
 }
 
 interface WishlistItemCardProps {
@@ -31,7 +31,9 @@ interface WishlistItemCardProps {
 }
 
 export function WishlistItemCard({ item, isOwner, wishlistId }: WishlistItemCardProps) {
-  const isReserved = !!item.reservations?.[0];
+  const isReserved = !!item.reservations;
+  
+  console.log("reservations", item.reservations);
 
   return (
     <Card className={`flex flex-col relative ${isReserved ? 'opacity-60' : ''}`}>
@@ -135,10 +137,9 @@ export function WishlistItemCard({ item, isOwner, wishlistId }: WishlistItemCard
         </CardFooter>
 
         {/* Show reservation info to owner */}
-        {isOwner && item.reservations?.[0] && (
+        {isOwner && item.reservations && (
           <div className="px-6 pb-4 text-sm text-muted-foreground">
-            <h1>hello</h1>
-            Reserved by: {item.reservations[0].reserver_name}
+            Reserved by: {item.reservations.reserver_name}
           </div>
         )}
       </div>
