@@ -9,7 +9,7 @@ import Link from "next/link";
 import { deleteWishlistItemAction } from "@/app/wishlists/actions";
 import { Badge } from "@/components/ui/badge";
 
-interface WishlistItem {
+export interface WishlistItem {
   id: string;
   name: string;
   description?: string;
@@ -122,13 +122,13 @@ export function WishlistItemCard({ item, isOwner, wishlistId }: WishlistItemCard
                 </form>
               </>
             ) : (
-              !item.reservations?.[0] ? (
+              !isReserved ? (
                 <ReservationForm itemId={item.id} itemName={item.name} />
               ) : (
                 <div className="flex items-center gap-2">
                   <div className="h-2 w-2 rounded-full bg-green-500" />
                   <span className="text-sm text-muted-foreground">
-                    Reserved {new Date(item.reservations[0].reserved_at).toLocaleDateString()}
+                    Reserved {new Date(item.reservations!.reserved_at).toLocaleDateString()}
                   </span>
                 </div>
               )

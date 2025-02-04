@@ -4,6 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Share2, Plus, Settings, Pencil, Trash2, ImageIcon } from "lucide-react";
 import { WishlistItemCard } from "@/components/wishlist/wishlist-item-card";
+import type { WishlistItem } from "@/components/wishlist/wishlist-item-card";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -84,7 +85,7 @@ export default async function WishlistPage({
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {wishlist.wishlist_items?.map((item) => (
+          {wishlist.wishlist_items?.map((item: WishlistItem) => (
             <WishlistItemCard
               key={item.id}
               item={item}
