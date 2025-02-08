@@ -62,24 +62,22 @@ export function WishlistItemCard({ item, isOwner, wishlistId }: WishlistItemCard
       )}
 
       {/* Content Section */}
-      <div className="flex flex-col flex-1">
-        <CardHeader className="flex-none">
-          <CardTitle className="line-clamp-1">{item.name}</CardTitle>
-          <div className="min-h-[1.5rem] group relative">
+      <div className="flex flex-col flex-1 justify-between">
+        {/* Title and Description Container */}
+        <div className="flex flex-col">
+          <CardHeader>
+            <CardTitle className="line-clamp-1">{item.name}</CardTitle>
             {item.description && (
-              <>
-                <CardDescription className="line-clamp-2">{item.description}</CardDescription>
-                {/* Full text on hover */}
-                <div className="absolute left-0 right-0 hidden group-hover:block bg-card z-10 p-2 rounded-md shadow-lg border">
-                  <CardDescription>{item.description}</CardDescription>
-                </div>
-              </>
+              <CardDescription className="line-clamp-3">
+                {item.description}
+              </CardDescription>
             )}
-          </div>
-        </CardHeader>
+          </CardHeader>
+        </div>
 
-        <div className="flex flex-col flex-1">
-          <CardContent className="flex-none pt-0">
+        {/* Price and Footer Container */}
+        <div className="flex flex-col">
+          <CardContent className="pt-0">
             {item.price && (
               <div className="text-lg font-semibold">
                 ${item.price.toFixed(2)}
@@ -87,7 +85,7 @@ export function WishlistItemCard({ item, isOwner, wishlistId }: WishlistItemCard
             )}
           </CardContent>
 
-          <CardFooter className="mt-auto flex justify-between items-center gap-2">
+          <CardFooter className="flex justify-between items-center gap-2">
             <div className="flex items-center gap-2">
               {item.purchase_url && (
                 <Button variant="outline" asChild>
