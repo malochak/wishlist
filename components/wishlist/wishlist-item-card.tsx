@@ -62,86 +62,95 @@ export function WishlistItemCard({ item, isOwner, wishlistId }: WishlistItemCard
       )}
 
       {/* Content Section */}
-      <div className="flex flex-col flex-grow">
-        <CardHeader>
-          <CardTitle>{item.name}</CardTitle>
-          {item.description && (
-            <CardDescription>{item.description}</CardDescription>
-          )}
-        </CardHeader>
-
-        <CardContent>
-          {item.price && (
-            <div className="text-lg font-semibold">
-              ${item.price.toFixed(2)}
-            </div>
-          )}
-        </CardContent>
-
-        {/* Footer Section */}
-        <CardFooter className="mt-auto flex justify-between items-center gap-2">
-          <div className="flex items-center gap-2">
-            {item.purchase_url && (
-              <Button variant="outline" asChild>
-                <a 
-                  href={item.purchase_url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2"
-                >
-                  View Item
-                </a>
-              </Button>
+      <div className="flex flex-col flex-1">
+        <CardHeader className="flex-none">
+          <CardTitle className="line-clamp-1">{item.name}</CardTitle>
+          <div className="min-h-[1.5rem] group relative">
+            {item.description && (
+              <>
+                <CardDescription className="line-clamp-2">{item.description}</CardDescription>
+                {/* Full text on hover */}
+                <div className="absolute left-0 right-0 hidden group-hover:block bg-card z-10 p-2 rounded-md shadow-lg border">
+                  <CardDescription>{item.description}</CardDescription>
+                </div>
+              </>
             )}
           </div>
-          
-          <div className="flex items-center gap-2">
-            {isOwner ? (
-              <>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  asChild
-                >
-                  <Link href={`/wishlists/${wishlistId}/items/${item.id}/edit`}>
-                    <span className="sr-only">Edit Item</span>
-                    <Pencil className="h-4 w-4" />
-                  </Link>
+        </CardHeader>
+
+        <div className="flex flex-col flex-1">
+          <CardContent className="flex-none pt-0">
+            {item.price && (
+              <div className="text-lg font-semibold">
+                ${item.price.toFixed(2)}
+              </div>
+            )}
+          </CardContent>
+
+          <CardFooter className="mt-auto flex justify-between items-center gap-2">
+            <div className="flex items-center gap-2">
+              {item.purchase_url && (
+                <Button variant="outline" asChild>
+                  <a 
+                    href={item.purchase_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2"
+                  >
+                    View Item
+                  </a>
                 </Button>
-                <form action={deleteWishlistItemAction}>
-                  <input type="hidden" name="itemId" value={item.id} />
+              )}
+            </div>
+            
+            <div className="flex items-center gap-2">
+              {isOwner ? (
+                <>
                   <Button
                     variant="outline"
                     size="icon"
-                    type="submit"
-                    className="text-destructive hover:text-destructive"
+                    asChild
                   >
-                    <span className="sr-only">Delete Item</span>
-                    <Trash2 className="h-4 w-4" />
+                    <Link href={`/wishlists/${wishlistId}/items/${item.id}/edit`}>
+                      <span className="sr-only">Edit Item</span>
+                      <Pencil className="h-4 w-4" />
+                    </Link>
                   </Button>
-                </form>
-              </>
-            ) : (
-              !isReserved ? (
-                <ReservationForm itemId={item.id} itemName={item.name} />
+                  <form action={deleteWishlistItemAction}>
+                    <input type="hidden" name="itemId" value={item.id} />
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      type="submit"
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <span className="sr-only">Delete Item</span>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </form>
+                </>
               ) : (
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-green-500" />
-                  <span className="text-sm text-muted-foreground">
-                    Reserved {new Date(item.reservations!.reserved_at).toLocaleDateString()}
-                  </span>
-                </div>
-              )
-            )}
-          </div>
-        </CardFooter>
+                !isReserved ? (
+                  <ReservationForm itemId={item.id} itemName={item.name} />
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-green-500" />
+                    <span className="text-sm text-muted-foreground">
+                      Reserved {new Date(item.reservations!.reserved_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                )
+              )}
+            </div>
+          </CardFooter>
 
-        {/* Show reservation info to owner */}
-        {isOwner && item.reservations && (
-          <div className="px-6 pb-4 text-sm text-muted-foreground">
-            Reserved by: {item.reservations.reserver_name}
-          </div>
-        )}
+          {/* Show reservation info to owner */}
+          {isOwner && item.reservations && (
+            <div className="px-6 pb-4 text-sm text-muted-foreground">
+              Reserved by: {item.reservations.reserver_name}
+            </div>
+          )}
+        </div>
       </div>
     </Card>
   );
