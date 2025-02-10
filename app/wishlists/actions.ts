@@ -3,6 +3,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { randomUUID } from "crypto";
 
 export async function createWishlistAction(formData: FormData) {
   const supabase = await createClient();
@@ -134,41 +135,54 @@ export async function updateItemPriority(formData: FormData) {
 }
 
 export async function createReservationAction(formData: FormData) {
-  const supabase = await createClient();
-
-  const { data: { user } } = await supabase.auth.getUser();
-  
   const itemId = formData.get("itemId") as string;
   const reserverName = formData.get("reserverName") as string;
   const reserverEmail = formData.get("reserverEmail") as string;
+  const cancellationToken = randomUUID();
+
+  if (!itemId || !reserverEmail) {
+    throw new Error("Missing required fields");
+  }
+
+  const supabase = await createClient();
 
   // Check if item is already reserved
   const { data: existingReservation } = await supabase
     .from("reservations")
-    .select()
+    .select("*")
     .eq("item_id", itemId)
     .eq("status", "reserved")
     .single();
 
   if (existingReservation) {
-    throw new Error("This item has already been reserved");
+    throw new Error("This item is already reserved");
   }
 
-  const { error } = await supabase
+  // Create reservation
+  const { error: reservationError } = await supabase
     .from("reservations")
     .insert({
       item_id: itemId,
       reserver_name: reserverName,
       reserver_email: reserverEmail,
       status: "reserved",
+      cancellation_token: cancellationToken,
     });
 
-  if (error) {
-    console.error("Error creating reservation:", error);
-    throw error;
+  if (reservationError) {
+    throw new Error("Failed to create reservation");
   }
 
+  // Send confirmation email with cancellation link
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const cancellationUrl = `${baseUrl}/reservations/cancel?token=${cancellationToken}`;
+  
+  // TODO: Implement email sending with the cancellation URL
+  // For now, we'll just console.log it
+  console.log("Cancellation URL:", cancellationUrl);
+
   revalidatePath("/wishlists/[id]");
+  revalidatePath("/public/[id]");
 }
 
 export async function updateReservationStatusAction(formData: FormData) {
@@ -310,11 +324,15 @@ export async function reserveItemAction({
     .from('reservations')
     .select('id')
     .eq('item_id', itemId)
+    .eq('status', 'reserved')
     .single();
 
   if (existingReservation) {
     throw new Error('Item is already reserved');
   }
+
+  // Generate cancellation token
+  const cancellationToken = randomUUID();
 
   // Create the reservation
   const { error } = await supabase
@@ -325,6 +343,7 @@ export async function reserveItemAction({
       reserver_name: name,
       user_id: user?.id, // Will be null for non-authenticated users
       status: 'reserved',
+      cancellation_token: cancellationToken,
     });
 
   if (error) {
@@ -332,12 +351,28 @@ export async function reserveItemAction({
     throw new Error('Failed to reserve item');
   }
 
-  // Send confirmation email (you'll need to implement this)
-  await sendReservationEmail({
+  // Get the item details for the email
+  const { data: item } = await supabase
+    .from('wishlist_items')
+    .select('name, wishlist:wishlists(title)')
+    .eq('id', itemId)
+    .single();
+
+  // Send confirmation email with cancellation link
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  const cancellationUrl = `${baseUrl}/reservations/cancel?token=${cancellationToken}`;
+  
+  // TODO: Implement email sending with the cancellation URL
+  console.log('Reservation details:', {
     email,
     name,
-    itemId,
+    itemName: item?.name,
+    wishlistTitle: item?.wishlist?.title,
+    cancellationUrl,
   });
+
+  revalidatePath("/wishlists/[id]");
+  revalidatePath("/public/[id]");
 }
 
 async function sendReservationEmail({
@@ -388,4 +423,40 @@ export async function toggleWishlistVisibilityAction(formData: FormData) {
   }
 
   revalidatePath(`/wishlists/${wishlistId}/share`);
+}
+
+export async function cancelReservationAction(token: string) {
+  const supabase = await createClient();
+
+  if (!token) {
+    throw new Error("Cancellation token is required");
+  }
+
+  // Find the reservation
+  const { data: reservation, error: findError } = await supabase
+    .from("reservations")
+    .select("*")
+    .eq("cancellation_token", token)
+    .single();
+
+  if (findError || !reservation) {
+    throw new Error("Invalid cancellation token");
+  }
+
+  if (reservation.status === "cancelled") {
+    throw new Error("Reservation is already cancelled");
+  }
+
+  // Update the reservation status
+  const { error: updateError } = await supabase
+    .from("reservations")
+    .update({ status: "cancelled" })
+    .eq("cancellation_token", token);
+
+  if (updateError) {
+    throw new Error("Failed to cancel reservation");
+  }
+
+  revalidatePath("/wishlists/[id]");
+  revalidatePath("/public/[id]");
 } 

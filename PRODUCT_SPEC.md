@@ -119,6 +119,7 @@ A minimalist wishlist application that allows users to create, manage, and share
 - `reserver_name`: text (optional)
 - `reserved_at`: timestamp
 - `status`: text (enum: 'reserved', 'purchased', 'cancelled')
+- `cancellation_token`: UUID (unique)
 
 ### Security Policies
 - Row Level Security (RLS) enabled on all tables
